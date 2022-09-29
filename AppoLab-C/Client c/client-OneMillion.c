@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
 
 #define MAXMSG MAXREP
 
@@ -39,6 +40,8 @@ void crypteMove_decoder_fast(char * enc, char * txt) {
 }
 
 int main() {
+    clock_t start, end;
+    double cpu_time_used;
     char reponse[MAXREP]; // pour stocker la réponse du serveur
 
     // Affiche les échanges avec le serveur (false pour désactiver)
@@ -62,12 +65,15 @@ int main() {
     for (i = 0; i < 9999; i++) {
         strcat(enc, aide);
     }
+    strcat(enc, "0123456789");
     for (i = 0; i < 100; i++) {
         txt[i] = -100 + i;
     }
     txt[100] = '\0';
     enc[999900] = '\0';
+    start = clock();
     crypteMove_decoder_fast(enc, txt);
+    end = clock();
     for (i = 0; i < 100; i++) {
         if (txt[i] >= 0)
             passe[i] = txt[i];
@@ -83,17 +89,15 @@ int main() {
 
 
     envoyer_recevoir("start", reponse);
-    /*
-    crypteMove_decoder_fast(reponse, clef);
-    for (i = 0; i < len_switch; i++) {
-        passe[val_list[i]] = clef[switch_val[i]];
-    }
-    */
     envoyer_recevoir(passe, reponse);
+
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+
     crypteMove_decoder_fast(reponse, txt);
     printf("\n%s\n", txt);
     txt[0] = '\0';
 
     envoyer_recevoir("C'est fini?", reponse);
+    printf("%f seconds to execute \n", cpu_time_used);
     return 0;
 }
