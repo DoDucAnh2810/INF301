@@ -183,7 +183,7 @@ void read_test_file (char* fichier, bool debug)
 
 
 int main(int argc, char *argv[]) {
-    const rlim_t kStackSize = 6442450944;
+    const rlim_t kStackSize = 4294967296;
     struct rlimit rl;
     int result;
 
