@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "stdbool.h": "c",
+        "pile_operation.h": "c",
+        "assert.h": "c",
+        "piles.h": "c",
+        "listes.h": "c",
+        "stdlib.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
+}
