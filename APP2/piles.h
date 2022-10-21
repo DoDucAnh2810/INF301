@@ -9,9 +9,9 @@ typedef sequence_t pile_t;
 
 void initPile(pile_t *pile);
 
-void empiler(pile_t *pile, int val, cellule_t *grp_comm_tete);
+void empiler(pile_t *pile, int val, cellule_t *groupe);
 
-void depiler(pile_t *pile, int *out_pnt, cellule_t **grp_comm_tete_pnt);
+void depiler(pile_t *pile, int *out_pnt, cellule_t **groupe_pnt);
 
 void addition(pile_t *pile);
 

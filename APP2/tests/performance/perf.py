@@ -138,13 +138,13 @@ def run_test(mode, message):
 
         if not gen:
 
-            command = timecmd + timeoutcmd + './' + prog + \
+            commande = timecmd + timeoutcmd + './' + prog + \
                 options + " " + tmppipe + " >/dev/null"
 
             try:
-                debug("Executing: ", command)
+                debug("Executing: ", commande)
                 result = subprocess.check_output(
-                    command, shell=True, stderr=subprocess.STDOUT)
+                    commande, shell=True, stderr=subprocess.STDOUT)
                 result = result.decode().rstrip()
                 parts = result.split(';', 2)
                 temps = parts[0]
@@ -162,7 +162,7 @@ def run_test(mode, message):
                 elif e.returncode == 134:
                     ret = "Assertion Failed"
                 elif e.returncode == 127:
-                    ret = "Command not found"
+                    ret = "commande not found"
                 else:
                     ret = "Timeout after " + str(timeout) + "seconds"
 

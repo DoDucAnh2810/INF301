@@ -34,9 +34,9 @@
 extern bool silent_mode;
 
 struct cellule {
-    char command;
+    char commande;
     int valeur;
-    struct cellule *grp_comm_tete;
+    struct cellule *groupe;
     struct cellule *suivant;
 };
 typedef struct cellule cellule_t;
@@ -48,28 +48,44 @@ struct sequence {
 };
 typedef struct sequence sequence_t;
 
+struct sequence_cellule {
+    sequence_t *seq;
+    struct sequence_cellule *suivant;
+};
+typedef struct sequence_cellule sequence_cellule_t;
 
-cellule_t* nouvelleCellule (void);
+struct sequence_list {
+    sequence_cellule_t *tete;
+};
+typedef struct sequence_list sequence_list_t;
+
+cellule_t* nouvelle_cellule (void);
 
 cellule_t *iloc(cellule_t *cel, int i);
 
-void detruireCellule (cellule_t*);
+cellule_t *queue(cellule_t *cel);
 
-void detruireSeq (cellule_t **cel_pnt);
+void detruire_cellule (cellule_t*);
 
-cellule_t *dupliquerSeq(cellule_t *cel);
+void detruire_seq (cellule_t **cel_pnt);
 
-cellule_t *concatenerSeq(cellule_t *seq_tete_1, cellule_t *seq_tete_2);
+void detruire_tete(sequence_t *seq);
+
+void detruire_tete_avec_groupe(sequence_t *seq);
+
+cellule_t *dupliquer_seq(cellule_t *cel);
+
+cellule_t *concatener_seq(cellule_t *seq_tete_1, cellule_t *seq_tete_2);
 
 int vide(sequence_t *seq);
 
-void extraireCommande (sequence_t* seq, char *commande, cellule_t **grp_comm_tete_pnt);
+void extraire_commande (sequence_t* seq, char *commande, cellule_t **groupe_pnt);
 
-void ajouter_en_tete(cellule_t **seq_tete, char comm, int valeur, cellule_t *grp_comm_tete);
-
-void ajouter_en_queue(cellule_t *seq_tete, char comm, int valeur, cellule_t *grp_comm_tete);
+void ajouter_en_tete(sequence_t *seq, char comm, int valeur, cellule_t *groupe);
 
 void conversion (char *texte, sequence_t *seq);
+
+void afficher_auxiliary(cellule_t *seq_tete, char space);
 
 void afficher (sequence_t* seq, char space);
 

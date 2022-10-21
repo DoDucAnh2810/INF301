@@ -186,8 +186,8 @@ def do_test(test_name, args) -> bool:
     test_file = TSTDIR / (test_name + ".test")
     assert test_file.exists()
 
-    # using 'yes' command to cancel all keypresses waiting
-    command = 'yes | {valgrind} {main} {silent} "{test}"'.format(
+    # using 'yes' commande to cancel all keypresses waiting
+    commande = 'yes | {valgrind} {main} {silent} "{test}"'.format(
         valgrind="valgrind" if use_valgrind else "",
         main="./main" if args.lang == "c" else "python3 ./main.py -ascii",
         silent="-silent" if silent else "",
@@ -197,7 +197,7 @@ def do_test(test_name, args) -> bool:
     print("\r    Test " + color(test_name, ORANGE), end="")
     try:
         run_result = run(
-            command,
+            commande,
             shell=True,
             check=True,
             timeout=TIMEOUT,

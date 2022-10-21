@@ -7,27 +7,31 @@
 
 
 void initPile(pile_t *pile) {
+    assert(pile != NULL);
     pile->tete = NULL;
     pile->nb_val = 0;
     pile->nb_grp_comm = 0;
 }
 
+
 int taille(pile_t *pile) {
+    assert(pile != NULL);
     return pile->nb_val + pile->nb_grp_comm;
 }
 
-void empiler(pile_t *pile, int val, cellule_t *grp_comm_tete) {
+
+void empiler(pile_t *pile, int val, cellule_t *groupe) {
     if (val != GRP_COMM) {
-        ajouter_en_tete(&(pile->tete), EMPTY, val, NULL);
+        ajouter_en_tete(pile, EMPTY, val, NULL);
         pile->nb_val++;
     } else {
-        ajouter_en_tete(&(pile->tete), GRP_COMM, GRP_COMM, grp_comm_tete);
+        ajouter_en_tete(pile, GRP_COMM, GRP_COMM, groupe);
         pile->nb_grp_comm++;
     }
 }
 
 
-void depiler(pile_t *pile, int *out_pnt, cellule_t **grp_comm_tete_pnt) {
+void depiler(pile_t *pile, int *out_pnt, cellule_t **groupe_pnt) {
     assert(pile != NULL);
     if (pile->tete == NULL) {
         printf("Erreur: Ne peut pas depiler une pile vide!\n");
@@ -36,13 +40,11 @@ void depiler(pile_t *pile, int *out_pnt, cellule_t **grp_comm_tete_pnt) {
     if (out_pnt != NULL){
         *out_pnt = pile->tete->valeur;
         pile->nb_val--;
-    } else if (grp_comm_tete_pnt != NULL) {
-        *grp_comm_tete_pnt = pile->tete->grp_comm_tete;
+    } else if (groupe_pnt != NULL) {
+        *groupe_pnt = pile->tete->groupe;
         pile->nb_grp_comm--;
     }
-    cellule_t *suiv = pile->tete->suivant;
-    detruireCellule(pile->tete);
-    pile->tete = suiv;
+    detruire_tete(pile);
 }
 
 
@@ -75,7 +77,7 @@ void addition(pile_t *pile) {
     if (x == GRP_COMM || y == GRP_COMM) {
         printf("Erreur: Impossible de faire l'additon sur un groupe de commande!\n");
         exit(3);
-    } 
+    }
     empiler(pile, x + y, NULL);
 }
 
@@ -124,12 +126,12 @@ cellule_t *expr_conditionelle(pile_t *pile) {
     if (boolean == GRP_COMM) {
         printf("Erreur: Expression conditionelle mauvaise!\n");
         exit(5);
-    } 
+    }
     if (boolean) {
-        detruireSeq(&grp_comm_faux);
+        detruire_seq(&grp_comm_faux);
         return grp_comm_vrai;
     } else {
-        detruireSeq(&grp_comm_vrai);
+        detruire_seq(&grp_comm_vrai);
         return grp_comm_faux;
     }
 }
@@ -140,13 +142,13 @@ cellule_t *executer(pile_t *pile) {
     if (pile->tete == NULL) {
         printf("Erreur: Ne peut pas faire l'execution sur une pile vide!\n");
         exit(4);
-    } else if (pile->tete->command != GRP_COMM || pile->tete->valeur != GRP_COMM) {
+    } else if (pile->tete->commande != GRP_COMM || pile->tete->valeur != GRP_COMM) {
         printf("Erreur: Ne peut pas executer un nombre!\n");
         exit(6);
     }
-    cellule_t *grp_comm_tete;
-    depiler(pile, NULL, &grp_comm_tete);
-    return grp_comm_tete;
+    cellule_t *groupe;
+    depiler(pile, NULL, &groupe);
+    return groupe;
 }
 
 
@@ -168,8 +170,7 @@ void cloner(pile_t *pile) {
         printf("Erreur: Ne peut pas cloner sur une pile vide!\n");
         exit(4);
     }
-    int valeur = pile->tete->valeur;
-    empiler(pile, valeur, dupliquerSeq(pile->tete->grp_comm_tete));
+    empiler(pile, pile->tete->valeur, dupliquer_seq(pile->tete->groupe));
 }
 
 cellule_t *boucle(pile_t *pile) {
@@ -184,16 +185,12 @@ cellule_t *boucle(pile_t *pile) {
         exit(3);
     }
     if (pile->tete->valeur == 0) {
-        depiler(pile, NULL, NULL);
-        cellule_t *grp_comm_tete;
-        depiler(pile, NULL, &grp_comm_tete);
-        detruireSeq(&grp_comm_tete);
+        detruire_tete(pile);
+        detruire_tete_avec_groupe(pile);
         return NULL;
     } else {
         pile->tete->valeur--;
-        cellule_t *execution = dupliquerSeq(pile->tete->suivant->grp_comm_tete);
-        ajouter_en_queue(execution, 'B', EMPTY, NULL);
-        return execution;
+        return dupliquer_seq(pile->tete->suivant->groupe);
     }
 }
 
@@ -203,9 +200,9 @@ void ignorer(pile_t *pile) {
         printf("Erreur: Ne peut pas ignorer sur une pile vide!\n");
         exit(4);
     }
-    cellule_t *grp_comm_tete;
-    depiler(pile, NULL, &grp_comm_tete);
-    detruireSeq(&grp_comm_tete);
+    cellule_t *groupe;
+    depiler(pile, NULL, &groupe);
+    detruire_seq(&groupe);
 }
 
 
