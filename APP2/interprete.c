@@ -56,9 +56,11 @@ int interprete (sequence_t* seq, bool debug)
                 ret = avance();
                 if (ret == VICTOIRE) {
                     detruireSeq(&seq->tete);
+                    detruireSeq(&pile.tete);
                     return VICTOIRE; 
                 } else if (ret == RATE) { 
                     detruireSeq(&seq->tete);
+                    detruireSeq(&pile.tete);
                     return RATE;   
                 }
                 break; /* à ne jamais oublier !!! */
@@ -129,6 +131,7 @@ int interprete (sequence_t* seq, bool debug)
     }
     /* Si on sort de la boucle sans arriver sur la cible,
      * c'est raté :-( */
-    
+    detruireSeq(&pile.tete);
+    assert(pile.tete == NULL);
     return CIBLERATEE;
 }

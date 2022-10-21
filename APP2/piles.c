@@ -185,7 +185,9 @@ cellule_t *boucle(pile_t *pile) {
     }
     if (pile->tete->valeur == 0) {
         depiler(pile, NULL, NULL);
-        depiler(pile, NULL, NULL);
+        cellule_t *grp_comm_tete;
+        depiler(pile, NULL, &grp_comm_tete);
+        detruireSeq(&grp_comm_tete);
         return NULL;
     } else {
         pile->tete->valeur--;
@@ -201,7 +203,9 @@ void ignorer(pile_t *pile) {
         printf("Erreur: Ne peut pas ignorer sur une pile vide!\n");
         exit(4);
     }
-    depiler(pile, NULL, NULL);
+    cellule_t *grp_comm_tete;
+    depiler(pile, NULL, &grp_comm_tete);
+    detruireSeq(&grp_comm_tete);
 }
 
 

@@ -154,26 +154,6 @@ cellule_t *conversion_recur_aux_plus(char *texte, int len_txt, int *i) {
     }
 }
 
-void conversion_recur_aux (char *texte, cellule_t **seq_tete_pnt) {
-    int i = strlen(texte) - 1;
-    while (i >= 0) {
-        if (texte[i] != DEJA_FAIT) {
-            if (('0' <= texte[i] && texte[i] <= '9') || ('*' <= texte[i] && texte[i] <= '-') || 
-                ('A' <= texte[i] && texte[i] <= 'Z') || (texte[i] == '!') || (texte[i] == '?')) {
-                ajouter_en_tete(seq_tete_pnt, texte[i], EMPTY, NULL);
-                texte[i] = DEJA_FAIT;
-            } else if (texte[i] == '}') {
-                ajouter_en_tete(seq_tete_pnt, GRP_COMM, GRP_COMM, NULL);
-                texte[i] = DEJA_FAIT;
-                conversion_recur_aux(texte, &(*seq_tete_pnt)->grp_comm_tete);
-            } else if (texte[i] == '{') {
-                texte[i] = DEJA_FAIT;
-                return;
-            }
-        }
-        i--;
-    } 
-}
 void conversion (char *texte, sequence_t *seq) {
     assert(seq != NULL && seq->tete == NULL);
     //conversion_recur_aux(texte, &(seq->tete));
