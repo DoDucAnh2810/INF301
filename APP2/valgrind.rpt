@@ -1,25 +1,16 @@
-==2517== Memcheck, a memory error detector
-==2517== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
-==2517== Using Valgrind-3.15.0 and LibVEX; rerun with -h for copyright info
-==2517== Command: ./main -silent tests/if.test
-==2517== Parent PID: 220
-==2517== 
-==2517== Warning: set address range perms: large range [0x409000, 0x181a1000) (defined)
-==2517== Invalid free() / delete / delete[] / realloc()
-==2517==    at 0x189DDA3F: free (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
-==2517==    by 0x403227: detruire_top_depth (listes.c:154)
-==2517==    by 0x4033B3: conversion (listes.c:175)
-==2517==    by 0x4013A6: launch (main.c:61)
-==2517==    by 0x40177C: read_test_file (main.c:153)
-==2517==    by 0x401AF6: main (main.c:260)
-==2517==  Address 0x18180560 is 0 bytes inside data symbol "prog_seq"
-==2517== 
-==2517== 
-==2517== HEAP SUMMARY:
-==2517==     in use at exit: 0 bytes in 0 blocks
-==2517==   total heap usage: 180 allocs, 186 frees, 9,568 bytes allocated
-==2517== 
-==2517== All heap blocks were freed -- no leaks are possible
-==2517== 
-==2517== For lists of detected and suppressed errors, rerun with: -s
-==2517== ERROR SUMMARY: 6 errors from 1 contexts (suppressed: 0 from 0)
+==4181== Memcheck, a memory error detector
+==4181== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==4181== Using Valgrind-3.15.0 and LibVEX; rerun with -h for copyright info
+==4181== Command: ./main -silent tests/if.test
+==4181== Parent PID: 220
+==4181== 
+==4181== Warning: set address range perms: large range [0x409000, 0x181a1000) (defined)
+==4181== 
+==4181== HEAP SUMMARY:
+==4181==     in use at exit: 0 bytes in 0 blocks
+==4181==   total heap usage: 180 allocs, 180 frees, 9,568 bytes allocated
+==4181== 
+==4181== All heap blocks were freed -- no leaks are possible
+==4181== 
+==4181== For lists of detected and suppressed errors, rerun with: -s
+==4181== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

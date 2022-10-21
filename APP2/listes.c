@@ -142,37 +142,38 @@ cellule_t *conversion_recur_aux_plus(char *texte, int len_txt, int *i) {
     }
 }
 
-void ajouter_depth(sequence_list_t *depth_list, sequence_t *depth) {
+void ajouter_depth(sequence_list_t *depth_list, sequence_t *seq) {
     sequence_cellule_t *new_depth = malloc(sizeof(sequence_cellule_t));
-    new_depth->seq = depth;
+    if (seq == NULL)
+        seq = malloc(sizeof(sequence_t));
+    new_depth->seq = seq;
+    new_depth->seq->tete = NULL;
     new_depth->suivant = depth_list->tete;
     depth_list->tete = new_depth;
 }
-void detruire_top_depth(sequence_list_t *depth_list) {
+void detruire_top_depth(sequence_list_t *depth_list, int top_level) {
     sequence_cellule_t *old_depth = depth_list->tete;
     depth_list->tete = depth_list->tete->suivant;
-    free(old_depth->seq);
+    if (!top_level)
+        free(old_depth->seq);
     free(old_depth);   
 }
 void conversion (char *texte, sequence_t *seq) {
     assert(seq != NULL && seq->tete == NULL);
-    sequence_t *new_depth_seq; 
     sequence_list_t depth_list; 
     ajouter_depth(&depth_list, seq);
     int i;
     for (i = strlen(texte) - 1; i >= 0; i--) {
         if (texte[i] == '}') {
-            new_depth_seq = malloc(sizeof(sequence_t));
-            new_depth_seq->tete = NULL;
-            ajouter_depth(&depth_list, new_depth_seq);
+            ajouter_depth(&depth_list, NULL);
         } else if (texte[i] == '{') {
             ajouter_en_tete(depth_list.tete->suivant->seq, GRP_COMM, GRP_COMM, depth_list.tete->seq->tete);
-            detruire_top_depth(&depth_list);
+            detruire_top_depth(&depth_list, false);
         } else if (!isspace(texte[i])) {
             ajouter_en_tete(depth_list.tete->seq, texte[i], EMPTY, NULL);
         }
     }
-    detruire_top_depth(&depth_list);
+    detruire_top_depth(&depth_list, true);
    //int i = 0;
    //seq->tete = conversion_recur_aux_plus(texte, strlen(texte), &i);
 }
