@@ -118,6 +118,12 @@ cellule_t *duplication_groupe(cellule_t *cel) {
 }
 
 
+int taille(sequence_t *seq) {
+    assert(seq != NULL);
+    return seq->nb_valeur + seq->nb_groupe;
+}
+
+
 int vide(sequence_t *seq) {
     return seq == NULL || seq->tete == NULL;
 }

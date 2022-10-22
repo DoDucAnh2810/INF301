@@ -19,4 +19,4 @@ main: main.o curiosity.o listes.o interprete.o piles.o conversion.o validation.o
 
 
 clean:
-	rm -f main *.o *.png
+	rm -f main *.o

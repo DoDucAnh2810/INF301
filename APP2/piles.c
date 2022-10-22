@@ -13,12 +13,6 @@ void init_pile(pile_t *pile) {
 }
 
 
-int taille(pile_t *pile) {
-    assert(pile != NULL);
-    return pile->nb_valeur + pile->nb_groupe;
-}
-
-
 void empiler(pile_t *pile, int val, cellule_t *groupe) {
     if (val != GROUPE) {
         ajouter_en_tete(pile, EMPTY, val, NULL);
@@ -131,7 +125,7 @@ void ignorer(pile_t *pile) {
 
 
 void rotation(pile_t *pile) {
-    validation_calculs(pile);
+    validation_rotation(pile);
     int nb_rotation, pas;
     depiler(pile, &pas, NULL);
     depiler(pile, &nb_rotation, NULL);

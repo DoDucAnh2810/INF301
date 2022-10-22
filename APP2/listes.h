@@ -65,6 +65,8 @@ cellule_t *concatenation_groupe(cellule_t *groupe_1, cellule_t *groupe_2);
 
 cellule_t *duplication_groupe(cellule_t *cel);
 
+int taille(sequence_t *seq);
+
 int vide(sequence_t *seq);
 
 void extraire_commande (sequence_t* seq, char *commande, cellule_t **groupe_pnt);

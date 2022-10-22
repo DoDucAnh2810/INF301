@@ -6,6 +6,8 @@
 #include "piles.h"
 
 
+void validation_texte_conversion(char *texte, int len_txt);
+
 void validation_pas_vide(pile_t *pile);
 
 void validation_calculs(pile_t *pile);
@@ -17,6 +19,8 @@ void validation_executer(pile_t *pile);
 void validation_echanger(pile_t *pile);
 
 void validation_boucle(pile_t *pile);
+
+void validation_rotation(pile_t *pile);
 
 
 #endif

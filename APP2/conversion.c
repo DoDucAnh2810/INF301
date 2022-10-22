@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include "listes.h"
+#include "validation.h"
 #include "conversion.h"
 
 
@@ -25,10 +26,12 @@ void detruire_depth(depth_liste_t *depth_liste) {
 
 void conversion (char *texte, sequence_t *seq) {
     assert(seq != NULL && seq->tete == NULL);
+    int len_txt = strlen(texte);
+    validation_texte_conversion(texte, len_txt);
     depth_liste_t depth_liste; 
     ajouter_depth(&depth_liste, seq);
     int i;
-    for (i = strlen(texte) - 1; i >= 0; i--) {
+    for (i = len_txt - 1; i >= 0; i--) {
         if (texte[i] == '}') {
             ajouter_depth(&depth_liste, malloc(sizeof(sequence_t)));
         } else if (texte[i] == '{') {
