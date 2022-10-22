@@ -23,11 +23,12 @@ bool silent_mode = false;
 cellule_t* nouvelle_cellule (void) {
     cellule_t *cel = malloc(sizeof(cellule_t));
     if (cel == NULL) {
-        printf("Erreur Fatale: Plus de memoire pour proceder la commande!\n");
+        eprintf("main: nouvelle_cellule: Erreur: Plus de memoire\n");
         exit(1);
     }
     return cel;
 }
+
 
 void ajouter_en_tete(sequence_t *seq, char commande, int valeur, cellule_t *groupe) {
     cellule_t *new_tete = nouvelle_cellule();
@@ -43,41 +44,51 @@ void detruire_cellule (cellule_t *cel) {
     free(cel);
 }
 
-void detruire_seq_auxiliary (cellule_t *cel) {
-    if (cel != NULL) {
-        if (cel->commande == GRP_COMM && cel->valeur == GRP_COMM) {
-            detruire_seq_auxiliary(cel->groupe);
-        }
-        detruire_seq_auxiliary(cel->suivant);
-        detruire_cellule(cel);
-    }
-}
-void detruire_seq(cellule_t **cel_pnt) {
-    detruire_seq_auxiliary(*cel_pnt);
-    *cel_pnt = NULL;
+
+void detruire_groupe_auxiliary (cellule_t *cel) {
+    if (cel == NULL) 
+        return;
+    if (cel->commande == GROUPE)
+        detruire_groupe_auxiliary(cel->groupe);
+    detruire_groupe_auxiliary(cel->suivant);
+    detruire_cellule(cel);
+} 
+void detruire_groupe(cellule_t **cel_pointeur) {
+    detruire_groupe_auxiliary(*cel_pointeur);
+    *cel_pointeur = NULL;
 }
 
+
 void detruire_tete(sequence_t *seq) {
-    assert(seq != NULL);
+    assert(seq != NULL && seq->tete != NULL);
     cellule_t *old_tete = seq->tete;
     seq->tete = seq->tete->suivant;
     detruire_cellule(old_tete);
 }
 
+
 void detruire_tete_avec_groupe(sequence_t *seq) {
-    assert(seq != NULL);
-    detruire_seq(&seq->tete->groupe);
+    assert(seq != NULL && seq->tete != NULL);
+    detruire_groupe(&seq->tete->groupe);
     detruire_tete(seq);
 }
 
 
-cellule_t *iloc(cellule_t *cel, int i) {
-    assert(i >= 0);
-    if (i == 0)
-        return cel;
-    else 
-        return iloc(cel->suivant, i - 1);
+cellule_t *iloc(sequence_t *seq, int i) {
+    assert(seq != NULL && seq->tete != NULL && i >= 0);
+    cellule_t *cel = seq->tete;
+    while (cel->suivant != NULL && i > 0) {
+        cel = cel->suivant;
+        i--;
+    }
+    if (i > 0) {
+        eprintf("main: iloc: Erreur: Index hors plage\n");
+        exit(2);
+    }
+    return cel;
+    
 }
+
 
 cellule_t *queue(cellule_t *cel) {
     assert(cel != NULL);
@@ -86,22 +97,24 @@ cellule_t *queue(cellule_t *cel) {
     return cel;
 }
 
-cellule_t *dupliquer_seq(cellule_t *cel) {
+
+cellule_t *concatenation_groupe(cellule_t *groupe_1, cellule_t *groupe_2) {
+    if (groupe_1 == NULL)
+        return groupe_2;
+    queue(groupe_1)->suivant = groupe_2;
+    return groupe_1;
+}
+
+
+cellule_t *duplication_groupe(cellule_t *cel) {
     if (cel == NULL)
         return NULL;
     cellule_t *duplication = nouvelle_cellule();
     duplication->commande = cel->commande;
     duplication->valeur = cel->valeur;
-    duplication->groupe = dupliquer_seq(cel->groupe);
-    duplication->suivant = dupliquer_seq(cel->suivant);
+    duplication->groupe = duplication_groupe(cel->groupe);
+    duplication->suivant = duplication_groupe(cel->suivant);
     return duplication;
-}
-
-cellule_t *concatener_seq(cellule_t *seq_tete_1, cellule_t *seq_tete_2) {
-    if (seq_tete_1 == NULL)
-        return seq_tete_2;
-    queue(seq_tete_1)->suivant = seq_tete_2;
-    return seq_tete_1;
 }
 
 
@@ -109,92 +122,31 @@ int vide(sequence_t *seq) {
     return seq == NULL || seq->tete == NULL;
 }
 
+
 void extraire_commande (sequence_t *seq, char *commande, cellule_t **groupe) {
-    assert(seq != NULL);
+    assert(seq != NULL && seq->tete != NULL);
     *commande = seq->tete->commande;
     *groupe = seq->tete->groupe;
     detruire_tete(seq);
 }
 
 
-cellule_t *conversion_recur_aux_plus(char *texte, int len_txt, int *i) {
-    while (*i < len_txt && isspace(texte[*i])) 
-        *i += 1;
-    if (*i >= len_txt || texte[*i] == '}') {
-        *i += 1;
-        return NULL;
-    } else {
-        cellule_t *cel = nouvelle_cellule();
-
-        if (texte[*i] == '{') {
-            cel->commande = GRP_COMM;
-            cel->valeur = GRP_COMM;
-            *i += 1;
-            cel->groupe = conversion_recur_aux_plus(texte, len_txt, i);
-        } else {
-            cel->commande = texte[*i];
-            cel->valeur = EMPTY;
-            cel->groupe = NULL;
-            *i += 1;
-        }
-        cel->suivant = conversion_recur_aux_plus(texte, len_txt, i);
-        return cel;
-    }
-}
-
-void ajouter_depth(sequence_list_t *depth_list, sequence_t *seq) {
-    sequence_cellule_t *new_depth = malloc(sizeof(sequence_cellule_t));
-    if (seq == NULL)
-        seq = malloc(sizeof(sequence_t));
-    new_depth->seq = seq;
-    new_depth->seq->tete = NULL;
-    new_depth->suivant = depth_list->tete;
-    depth_list->tete = new_depth;
-}
-void detruire_top_depth(sequence_list_t *depth_list, int top_level) {
-    sequence_cellule_t *old_depth = depth_list->tete;
-    depth_list->tete = depth_list->tete->suivant;
-    if (!top_level)
-        free(old_depth->seq);
-    free(old_depth);   
-}
-void conversion (char *texte, sequence_t *seq) {
-    assert(seq != NULL && seq->tete == NULL);
-    sequence_list_t depth_list; 
-    ajouter_depth(&depth_list, seq);
-    int i;
-    for (i = strlen(texte) - 1; i >= 0; i--) {
-        if (texte[i] == '}') {
-            ajouter_depth(&depth_list, NULL);
-        } else if (texte[i] == '{') {
-            ajouter_en_tete(depth_list.tete->suivant->seq, GRP_COMM, GRP_COMM, depth_list.tete->seq->tete);
-            detruire_top_depth(&depth_list, false);
-        } else if (!isspace(texte[i])) {
-            ajouter_en_tete(depth_list.tete->seq, texte[i], EMPTY, NULL);
-        }
-    }
-    detruire_top_depth(&depth_list, true);
-   //int i = 0;
-   //seq->tete = conversion_recur_aux_plus(texte, strlen(texte), &i);
-}
-
-
-void afficher_auxiliary(cellule_t *seq_tete, char space) {
-    cellule_t *cel = seq_tete;
+void afficher_auxiliary(cellule_t *groupe) {
+    cellule_t *cel = groupe;
     while (cel != NULL) {
-        if (cel->commande == GRP_COMM && cel->valeur == GRP_COMM) {
+        if (cel->commande == GROUPE) {
             printf("{ ");
-            afficher_auxiliary(cel->groupe, space);
+            afficher_auxiliary(cel->groupe);
             printf("} ");
         } else if (cel->commande == EMPTY) 
-            printf("%d%c", cel->valeur, space);
+            printf("%d ", cel->valeur);
         else
-            printf("%c%c", cel->commande, space);
+            printf("%c ", cel->commande);
         cel = cel->suivant;
     }
 }
-void afficher (sequence_t* seq, char space) {
-    assert (seq != NULL); /* Le pointeur doit être valide */
-    afficher_auxiliary(seq->tete, space);
+void afficher (sequence_t *seq) {
+    assert (seq != NULL);
+    afficher_auxiliary(seq->tete);
     printf("\n");
 }

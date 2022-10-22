@@ -28,42 +28,34 @@ void stop (void)
 
 int interprete (sequence_t* seq, bool debug)
 {
-    // Version temporaire a remplacer par une lecture des commandes dans la
-    // liste chainee et leur interpretation.
-    assert(seq != NULL);
-    
-    pile_t pile;
-    initPile(&pile);
-
-    if (!silent_mode) { 
+    if (!silent_mode) {
         printf ("Programme: ");
-        afficher(seq, ' ');
+        afficher(seq);
         printf ("\n");
         if (debug) stop();
     }
 
-
-    char commande; int valeur; cellule_t *groupe; cellule_t *nouveau_processus;
-    int ret;         //utilisée pour les valeurs de retour
+    cellule_t *groupe; cellule_t *nouveau_processus;  
+    char commande; int valeur, ret;     
+    pile_t pile;
+    init_pile(&pile);
 
     while (!vide(seq)) {
         extraire_commande(seq, &commande, &groupe);
 
         switch (commande) {
-            /* Ici on avance tout le temps, à compléter pour gérer d'autres commandes */
-
             case 'A':
                 ret = avance();
                 if (ret == VICTOIRE) {
-                    detruire_seq(&seq->tete);
-                    detruire_seq(&pile.tete);
+                    detruire_groupe(&seq->tete);
+                    detruire_groupe(&pile.tete);
                     return VICTOIRE; 
                 } else if (ret == RATE) { 
-                    detruire_seq(&seq->tete);
-                    detruire_seq(&pile.tete);
+                    detruire_groupe(&seq->tete);
+                    detruire_groupe(&pile.tete);
                     return RATE;   
                 }
-                break; /* à ne jamais oublier !!! */
+                break; 
             case 'D':
                 droite();
                 break;
@@ -72,6 +64,9 @@ int interprete (sequence_t* seq, bool debug)
                 break;
             case '0' ... '9':
                 empiler(&pile, commande - '0', NULL); 
+                break;
+            case GROUPE:
+                empiler(&pile, GROUPE, groupe);
                 break;
             case '+':
                 addition(&pile);
@@ -91,16 +86,19 @@ int interprete (sequence_t* seq, bool debug)
                 depiler(&pile, &valeur, NULL);
                 pose(valeur);
                 break;
-            case GRP_COMM:
-                empiler(&pile, GRP_COMM, groupe);
-                break;
             case '?':
                 nouveau_processus = expr_conditionelle(&pile);
-                seq->tete = concatener_seq(nouveau_processus, seq->tete);
+                seq->tete = concatenation_groupe(nouveau_processus, seq->tete);
                 break;
             case '!':
                 nouveau_processus = executer(&pile);
-                seq->tete = concatener_seq(nouveau_processus, seq->tete);
+                seq->tete = concatenation_groupe(nouveau_processus, seq->tete);
+                break;
+            case 'B':
+                nouveau_processus = boucle(&pile);
+                if (nouveau_processus != NULL)
+                    ajouter_en_tete(seq, 'B', EMPTY, NULL);
+                seq->tete = concatenation_groupe(nouveau_processus, seq->tete);
                 break;
             case 'X':
                 echanger(&pile);
@@ -108,35 +106,28 @@ int interprete (sequence_t* seq, bool debug)
             case 'C':
                 cloner(&pile);
                 break;
-            case 'B':
-                nouveau_processus = boucle(&pile);
-                if (nouveau_processus != NULL)
-                    ajouter_en_tete(seq, 'B', EMPTY, NULL);
-                seq->tete = concatener_seq(nouveau_processus, seq->tete);
-                break;
             case 'I':
                 ignorer(&pile);
                 break;
             case 'R':
                 rotation(&pile);
                 break;
+            case 'Z':
+                inverser(&pile);
+                break;
             default:
                 eprintf("Caractère inconnu: '%c'\n", commande);
         }
-        /* Affichage pour faciliter le debug */
-        if (!silent_mode) {
+        if (!silent_mode){
             afficherCarte();
             printf ("Programme: ");
-            afficher(seq, ' ');
+            afficher(seq);
             printf ("Pile: ");
-            afficher(&pile, ' ');
+            afficher(&pile);
             printf("\n");
             if (debug) stop();
         }
     }
-    /* Si on sort de la boucle sans arriver sur la cible,
-     * c'est raté :-( */
-    detruire_seq(&pile.tete);
-    assert(pile.tete == NULL);
+    detruire_groupe(&pile.tete);
     return CIBLERATEE;
 }

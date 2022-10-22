@@ -23,13 +23,9 @@
 
 #endif
 
-#define MAX_DEPTH 512000
 
-#define GRP_COMM -128
-
+#define GROUPE -128
 #define EMPTY -127
-
-#define DEJA_FAIT '\0'
 
 extern bool silent_mode;
 
@@ -43,51 +39,37 @@ typedef struct cellule cellule_t;
 
 struct sequence {
     cellule_t *tete;
-    int nb_val;
-    int nb_grp_comm;
+    int nb_valeur;
+    int nb_groupe;
 };
 typedef struct sequence sequence_t;
 
-struct sequence_cellule {
-    sequence_t *seq;
-    struct sequence_cellule *suivant;
-};
-typedef struct sequence_cellule sequence_cellule_t;
-
-struct sequence_list {
-    sequence_cellule_t *tete;
-};
-typedef struct sequence_list sequence_list_t;
 
 cellule_t* nouvelle_cellule (void);
 
-cellule_t *iloc(cellule_t *cel, int i);
-
-cellule_t *queue(cellule_t *cel);
+void ajouter_en_tete(sequence_t *seq, char comm, int valeur, cellule_t *groupe);
 
 void detruire_cellule (cellule_t*);
 
-void detruire_seq (cellule_t **cel_pnt);
+void detruire_groupe (cellule_t **cel_pointeur);
 
 void detruire_tete(sequence_t *seq);
 
 void detruire_tete_avec_groupe(sequence_t *seq);
 
-cellule_t *dupliquer_seq(cellule_t *cel);
+cellule_t *iloc(sequence_t *seq, int i);
 
-cellule_t *concatener_seq(cellule_t *seq_tete_1, cellule_t *seq_tete_2);
+cellule_t *queue(cellule_t *cel);
+
+cellule_t *concatenation_groupe(cellule_t *groupe_1, cellule_t *groupe_2);
+
+cellule_t *duplication_groupe(cellule_t *cel);
 
 int vide(sequence_t *seq);
 
 void extraire_commande (sequence_t* seq, char *commande, cellule_t **groupe_pnt);
 
-void ajouter_en_tete(sequence_t *seq, char comm, int valeur, cellule_t *groupe);
-
-void conversion (char *texte, sequence_t *seq);
-
-void afficher_auxiliary(cellule_t *seq_tete, char space);
-
-void afficher (sequence_t* seq, char space);
+void afficher (sequence_t* seq);
 
 
 #endif

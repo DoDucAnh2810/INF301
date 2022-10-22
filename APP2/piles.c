@@ -1,151 +1,93 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <assert.h>
 #include "listes.h"
+#include "validation.h"
 #include "piles.h"
 
 
-void initPile(pile_t *pile) {
+void init_pile(pile_t *pile) {
     assert(pile != NULL);
     pile->tete = NULL;
-    pile->nb_val = 0;
-    pile->nb_grp_comm = 0;
+    pile->nb_valeur = 0;
+    pile->nb_groupe = 0;
 }
 
 
 int taille(pile_t *pile) {
     assert(pile != NULL);
-    return pile->nb_val + pile->nb_grp_comm;
+    return pile->nb_valeur + pile->nb_groupe;
 }
 
 
 void empiler(pile_t *pile, int val, cellule_t *groupe) {
-    if (val != GRP_COMM) {
+    if (val != GROUPE) {
         ajouter_en_tete(pile, EMPTY, val, NULL);
-        pile->nb_val++;
+        pile->nb_valeur++;
     } else {
-        ajouter_en_tete(pile, GRP_COMM, GRP_COMM, groupe);
-        pile->nb_grp_comm++;
+        ajouter_en_tete(pile, GROUPE, GROUPE, groupe);
+        pile->nb_groupe++;
     }
 }
 
 
 void depiler(pile_t *pile, int *out_pnt, cellule_t **groupe_pnt) {
-    assert(pile != NULL);
-    if (pile->tete == NULL) {
-        printf("Erreur: Ne peut pas depiler une pile vide!\n");
-        exit(4);
-    } 
+    validation_pas_vide(pile);
     if (out_pnt != NULL){
         *out_pnt = pile->tete->valeur;
-        pile->nb_val--;
+        pile->nb_valeur--;
     } else if (groupe_pnt != NULL) {
         *groupe_pnt = pile->tete->groupe;
-        pile->nb_grp_comm--;
+        pile->nb_groupe--;
     }
     detruire_tete(pile);
 }
 
 
-int au_moins_2_nombre(pile_t *pile) {
-    assert(pile != NULL);
-    return pile->nb_val >= 2;
-}
-
-
-int au_moins_2_grp_comm_et_1_nombre(pile_t *pile) {
-    assert(pile != NULL);
-    return pile->nb_grp_comm >= 2 && pile->nb_val >= 1;
-}
-
-
-int au_moins_2_element(pile_t *pile) {
-    assert(pile != NULL);
-    return (pile->nb_val + pile->nb_grp_comm) >= 2;
-}
-
-
 void addition(pile_t *pile) {
-    if (!au_moins_2_nombre(pile)) {
-        printf("Erreur: Pas assez d'element dans la pile!\n");
-        exit(2);
-    }
+    validation_calculs(pile);
     int x, y;
     depiler(pile, &y, NULL);
     depiler(pile, &x, NULL);
-    if (x == GRP_COMM || y == GRP_COMM) {
-        printf("Erreur: Impossible de faire l'additon sur un groupe de commande!\n");
-        exit(3);
-    }
     empiler(pile, x + y, NULL);
 }
 
 
 void soustraction(pile_t *pile) {
-    if (!au_moins_2_nombre(pile)) {
-        printf("Erreur: Pas assez d'element dans la pile!\n");
-        exit(2);
-    } 
+    validation_calculs(pile);
     int x, y;
     depiler(pile, &y, NULL);
     depiler(pile, &x, NULL);
-    if (x == GRP_COMM || y == GRP_COMM) {
-        printf("Erreur: Impossible de faire la soustraction sur un groupe de commande!\n");
-        exit(3);
-    } 
     empiler(pile, x - y, NULL);
 }
 
 
 void multiplication(pile_t *pile) {
-    if (!au_moins_2_nombre(pile)) {
-        printf("Erreur: Pas assez d'element dans la pile!\n");
-        exit(2);
-    }
+    validation_calculs(pile);
     int x, y;
     depiler(pile, &y, NULL);
     depiler(pile, &x, NULL);
-    if (x == GRP_COMM || y == GRP_COMM) {
-        printf("Erreur: Impossible de faire la multiplication sur un groupe de commande!\n");
-        exit(3);
-    } 
     empiler(pile, x * y, NULL);
 }
 
 
 cellule_t *expr_conditionelle(pile_t *pile) {
-    if (!au_moins_2_grp_comm_et_1_nombre(pile)) {
-        printf("Erreur: Expression conditionelle mauvaise!\n");
-        exit(5);
-    } 
-    int boolean; cellule_t *grp_comm_vrai, *grp_comm_faux;
-    depiler(pile, NULL, &grp_comm_faux);
-    depiler(pile, NULL, &grp_comm_vrai);
+    validation_expr_conditionelle(pile);
+    int boolean; cellule_t *groupe_vrai, *groupe_faux;
+    depiler(pile, NULL, &groupe_faux);
+    depiler(pile, NULL, &groupe_vrai);
     depiler(pile, &boolean, NULL);
-    if (boolean == GRP_COMM) {
-        printf("Erreur: Expression conditionelle mauvaise!\n");
-        exit(5);
-    }
     if (boolean) {
-        detruire_seq(&grp_comm_faux);
-        return grp_comm_vrai;
+        detruire_groupe(&groupe_faux);
+        return groupe_vrai;
     } else {
-        detruire_seq(&grp_comm_vrai);
-        return grp_comm_faux;
+        detruire_groupe(&groupe_vrai);
+        return groupe_faux;
     }
 }
 
 
 cellule_t *executer(pile_t *pile) {
-    assert(pile != NULL);
-    if (pile->tete == NULL) {
-        printf("Erreur: Ne peut pas faire l'execution sur une pile vide!\n");
-        exit(4);
-    } else if (pile->tete->commande != GRP_COMM || pile->tete->valeur != GRP_COMM) {
-        printf("Erreur: Ne peut pas executer un nombre!\n");
-        exit(6);
-    }
+    validation_executer(pile);
     cellule_t *groupe;
     depiler(pile, NULL, &groupe);
     return groupe;
@@ -153,10 +95,7 @@ cellule_t *executer(pile_t *pile) {
 
 
 void echanger(pile_t *pile) {
-    if (!au_moins_2_element(pile)) {
-        printf("Erreur: Pas assez d'element dans la pile!\n");
-        exit(2);
-    }
+    validation_echanger(pile);
     cellule_t *cel_1 = pile->tete;
     cellule_t *cel_2 = pile->tete->suivant;
     cellule_t *reste = pile->tete->suivant->suivant;
@@ -166,60 +105,58 @@ void echanger(pile_t *pile) {
 }
 
 void cloner(pile_t *pile) {
-    if (vide(pile)) {
-        printf("Erreur: Ne peut pas cloner sur une pile vide!\n");
-        exit(4);
-    }
-    empiler(pile, pile->tete->valeur, dupliquer_seq(pile->tete->groupe));
+    validation_pas_vide(pile);
+    empiler(pile, pile->tete->valeur, duplication_groupe(pile->tete->groupe));
 }
 
 cellule_t *boucle(pile_t *pile) {
-    if (pile->nb_grp_comm == 0 || pile->nb_val == 0) {
-        printf("Erreur: Pas assez d'element dans la pile!\n");
-        exit(2);
-    } else if (pile->tete->valeur == GRP_COMM) {
-        printf("Erreur: Un groupe de commande ne peut pas etre l'entier de la boucle!\n");
-        exit(3);
-    } else if (pile->tete->suivant->valeur != GRP_COMM) {
-        printf("Erreur: Ne peut pas executer un entier!\n");
-        exit(3);
-    }
+    validation_boucle(pile);
     if (pile->tete->valeur == 0) {
         detruire_tete(pile);
         detruire_tete_avec_groupe(pile);
         return NULL;
     } else {
         pile->tete->valeur--;
-        return dupliquer_seq(pile->tete->suivant->groupe);
+        return duplication_groupe(pile->tete->suivant->groupe);
     }
 }
 
 
 void ignorer(pile_t *pile) {
-    if (vide(pile)) {
-        printf("Erreur: Ne peut pas ignorer sur une pile vide!\n");
-        exit(4);
-    }
+    validation_pas_vide(pile);
     cellule_t *groupe;
     depiler(pile, NULL, &groupe);
-    detruire_seq(&groupe);
+    detruire_groupe(&groupe);
 }
 
 
 void rotation(pile_t *pile) {
-    assert(pile != NULL);
+    validation_calculs(pile);
     int nb_rotation, pas;
     depiler(pile, &pas, NULL);
     depiler(pile, &nb_rotation, NULL);
     pas = pas % nb_rotation;
-    if (pas != 0) {
-        cellule_t *old_tete = pile->tete;
-        cellule_t *old_end_rotation = iloc(pile->tete, nb_rotation-1);
-        cellule_t *new_end_rotation = iloc(pile->tete, nb_rotation-1 - pas);
-        pile->tete = new_end_rotation->suivant;
-        new_end_rotation->suivant = old_end_rotation->suivant;
-        old_end_rotation->suivant = old_tete;
+    if (pas == 0) 
+        return;
+    cellule_t *old_tete = pile->tete;
+    cellule_t *old_end_rotation = iloc(pile, nb_rotation-1);
+    cellule_t *new_end_rotation = iloc(pile, nb_rotation-1 - pas);
+    pile->tete = new_end_rotation->suivant;
+    new_end_rotation->suivant = old_end_rotation->suivant;
+    old_end_rotation->suivant = old_tete;
+}
+
+
+void inverser(pile_t *pile) {
+    assert(pile != NULL);
+    cellule_t *precedant = NULL, *cel = pile->tete, *suivant;
+    while (cel != NULL) {
+        suivant = cel->suivant;
+        cel->suivant = precedant;
+        precedant = cel;
+        cel = suivant;
     }
+    pile->tete = precedant;
 }
 
 

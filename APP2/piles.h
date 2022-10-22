@@ -4,10 +4,11 @@
 
 #include "listes.h"
 
+
 typedef sequence_t pile_t;
 
 
-void initPile(pile_t *pile);
+void init_pile(pile_t *pile);
 
 void empiler(pile_t *pile, int val, cellule_t *groupe);
 
@@ -32,6 +33,8 @@ void cloner(pile_t * pile);
 void ignorer(pile_t *pile);
 
 void rotation(pile_t *pile);
+
+void inverser(pile_t *pile);
 
 
 #endif

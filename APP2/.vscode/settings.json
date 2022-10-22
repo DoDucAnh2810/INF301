@@ -5,7 +5,9 @@
         "assert.h": "c",
         "piles.h": "c",
         "listes.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "interprete.h": "c",
+        "validation.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

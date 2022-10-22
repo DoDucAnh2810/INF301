@@ -3,7 +3,6 @@
 #include <string.h>
 #include <stdbool.h>
 #include <assert.h>
-#include <sys/resource.h>
 #ifdef NCURSES
 #include <ncurses.h>
 #endif
@@ -11,6 +10,7 @@
 #include "listes.h"
 #include "interprete.h"
 #include "piles.h"
+#include "conversion.h"
 
 
 /*
@@ -183,6 +183,7 @@ void read_test_file (char* fichier, bool debug)
 
 
 int main(int argc, char *argv[]) {
+    /*
     const rlim_t kStackSize = 4294967296;
     struct rlimit rl;
     int result;
@@ -200,6 +201,7 @@ int main(int argc, char *argv[]) {
             }
         }
     }
+    */
 
     int arg;
     bool debug = false;
