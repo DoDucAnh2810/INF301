@@ -50,7 +50,7 @@ void validation_calculs(pile_t *pile) {
 
 void validation_expr_conditionelle(pile_t *pile) {
     assert(pile != NULL);
-    if (pile->nb_valeur == 0 || pile->nb_groupe < 2) {
+    if (pile->nb_valeur < 1 || pile->nb_groupe < 2) {
         eprintf("main: expr_conditionelle: Erreur: Pas assez d'element dans la pile\n");
         exit(8);
     }

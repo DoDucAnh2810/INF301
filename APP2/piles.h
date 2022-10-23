@@ -14,6 +14,8 @@ void empiler(pile_t *pile, int val, cellule_t *groupe);
 
 void depiler(pile_t *pile, int *out_pnt, cellule_t **groupe_pnt);
 
+void detruire_sommet(pile_t *pile);
+
 void addition(pile_t *pile);
 
 void soustraction(pile_t *pile);

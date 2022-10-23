@@ -28,11 +28,11 @@ void stop (void)
 
 int interprete (sequence_t* seq, bool debug)
 {
-    if (!silent_mode) {
+    if (debug) {
         printf ("Programme: ");
         afficher(seq);
         printf ("\n");
-        if (debug) stop();
+        stop();
     }
 
     cellule_t *groupe; cellule_t *nouveau_processus;  
@@ -118,14 +118,13 @@ int interprete (sequence_t* seq, bool debug)
             default:
                 eprintf("Caractère inconnu: '%c'\n", commande);
         }
-        if (!silent_mode){
+        if (debug){
             afficherCarte();
             printf ("Programme: ");
             afficher(seq);
             printf ("Pile: ");
             afficher(&pile);
-            printf("\n");
-            if (debug) stop();
+            stop();
         }
     }
     detruire_groupe(&pile.tete);

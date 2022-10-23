@@ -10,17 +10,10 @@
 #include "listes.h"
  
 
-/*
- *  Auteur(s) :
- *  Date :
- *  Suivi des Modifications :
- *
- */
-
 bool silent_mode = false;
 
 
-cellule_t* nouvelle_cellule (void) {
+cellule_t* nouvelle_cellule (void) { // create a new cell
     cellule_t *cel = malloc(sizeof(cellule_t));
     if (cel == NULL) {
         eprintf("main: nouvelle_cellule: Erreur: Plus de memoire\n");
@@ -30,32 +23,37 @@ cellule_t* nouvelle_cellule (void) {
 }
 
 
-void ajouter_en_tete(sequence_t *seq, char commande, int valeur, cellule_t *groupe) {
+void ajouter_en_tete(sequence_t *seq, char commande, int valeur, cellule_t *groupe) { // add a cell to the head of a linked list
+    // create new cell
     cellule_t *new_tete = nouvelle_cellule();
     new_tete->commande = commande;
     new_tete->valeur = valeur;
     new_tete->groupe = groupe;
+    
+    // change the head
     new_tete->suivant = seq->tete;
     seq->tete = new_tete;
 }
 
 
-void detruire_cellule (cellule_t *cel) {
+void detruire_cellule (cellule_t *cel) { // free the memory at a cell
     free(cel);
 }
 
 
-void detruire_groupe_auxiliary (cellule_t *cel) {
-    if (cel == NULL) 
-        return;
-    if (cel->commande == GROUPE)
-        detruire_groupe_auxiliary(cel->groupe);
-    detruire_groupe_auxiliary(cel->suivant);
-    detruire_cellule(cel);
+void detruire_groupe_auxiliary (cellule_t *cel) { // free ALL memory related to a cell
+    cellule_t *old_cel;
+    while (cel != NULL) {
+        if (cel->commande == GROUPE) // the cell also contains a group to be free
+            detruire_groupe_auxiliary(cel->groupe); // recursively destroy it
+        old_cel = cel;
+        cel = cel->suivant;
+        detruire_cellule(old_cel);
+    }
 } 
-void detruire_groupe(cellule_t **cel_pointeur) {
-    detruire_groupe_auxiliary(*cel_pointeur);
-    *cel_pointeur = NULL;
+void detruire_groupe(cellule_t **groupe_pointeur) { // free ALL memory related to a cell pointer and set that cell to be NULL
+    detruire_groupe_auxiliary(*groupe_pointeur);
+    *groupe_pointeur = NULL;
 }
 
 
@@ -64,13 +62,6 @@ void detruire_tete(sequence_t *seq) {
     cellule_t *old_tete = seq->tete;
     seq->tete = seq->tete->suivant;
     detruire_cellule(old_tete);
-}
-
-
-void detruire_tete_avec_groupe(sequence_t *seq) {
-    assert(seq != NULL && seq->tete != NULL);
-    detruire_groupe(&seq->tete->groupe);
-    detruire_tete(seq);
 }
 
 

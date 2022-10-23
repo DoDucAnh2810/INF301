@@ -9,6 +9,10 @@
 
 void ajouter_depth(depth_liste_t *depth_liste, sequence_t *seq) {
     depth_t *new_depth = malloc(sizeof(depth_t));
+    if (new_depth == NULL || seq == NULL) {
+        eprintf("main: ajouter_depth: Erreur: Plus de memoire\n");
+        exit(1);
+    } 
     new_depth->seq = seq;
     new_depth->seq->tete = NULL;
     new_depth->suivant = depth_liste->tete;

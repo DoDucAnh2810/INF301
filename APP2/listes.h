@@ -49,13 +49,11 @@ cellule_t* nouvelle_cellule (void);
 
 void ajouter_en_tete(sequence_t *seq, char comm, int valeur, cellule_t *groupe);
 
-void detruire_cellule (cellule_t*);
+void detruire_cellule (cellule_t *cel);
 
-void detruire_groupe (cellule_t **cel_pointeur);
+void detruire_groupe (cellule_t **groupe_pointeur);
 
 void detruire_tete(sequence_t *seq);
-
-void detruire_tete_avec_groupe(sequence_t *seq);
 
 cellule_t *iloc(sequence_t *seq, int i);
 

@@ -14,7 +14,7 @@ void init_pile(pile_t *pile) {
 
 
 void empiler(pile_t *pile, int val, cellule_t *groupe) {
-    if (val != GROUPE) {
+    if (val != GROUPE && groupe == NULL) {
         ajouter_en_tete(pile, EMPTY, val, NULL);
         pile->nb_valeur++;
     } else {
@@ -24,14 +24,26 @@ void empiler(pile_t *pile, int val, cellule_t *groupe) {
 }
 
 
-void depiler(pile_t *pile, int *out_pnt, cellule_t **groupe_pnt) {
+void depiler(pile_t *pile, int *valeur_pnt, cellule_t **groupe_pnt) {
     validation_pas_vide(pile);
-    if (out_pnt != NULL){
-        *out_pnt = pile->tete->valeur;
+    if (valeur_pnt != NULL){
+        *valeur_pnt = pile->tete->valeur;
         pile->nb_valeur--;
     } else if (groupe_pnt != NULL) {
         *groupe_pnt = pile->tete->groupe;
         pile->nb_groupe--;
+    }
+    detruire_tete(pile);
+}
+
+
+void detruire_sommet(pile_t *pile) {
+    validation_pas_vide(pile);
+    if (pile->tete->commande == GROUPE) {
+        detruire_groupe(&pile->tete->groupe);
+        pile->nb_groupe--;
+    } else {
+        pile->nb_valeur--;
     }
     detruire_tete(pile);
 }
@@ -98,16 +110,18 @@ void echanger(pile_t *pile) {
     cel_1->suivant = reste;
 }
 
+
 void cloner(pile_t *pile) {
     validation_pas_vide(pile);
     empiler(pile, pile->tete->valeur, duplication_groupe(pile->tete->groupe));
 }
 
+
 cellule_t *boucle(pile_t *pile) {
     validation_boucle(pile);
-    if (pile->tete->valeur == 0) {
-        detruire_tete(pile);
-        detruire_tete_avec_groupe(pile);
+    if (pile->tete->valeur <= 0) {
+        detruire_sommet(pile);
+        detruire_sommet(pile);
         return NULL;
     } else {
         pile->tete->valeur--;
@@ -118,9 +132,7 @@ cellule_t *boucle(pile_t *pile) {
 
 void ignorer(pile_t *pile) {
     validation_pas_vide(pile);
-    cellule_t *groupe;
-    depiler(pile, NULL, &groupe);
-    detruire_groupe(&groupe);
+    detruire_sommet(pile);
 }
 
 
