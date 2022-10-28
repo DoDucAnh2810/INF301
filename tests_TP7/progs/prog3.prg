@@ -1,0 +1,1 @@
+GA {AGAAGAGGGA} I A

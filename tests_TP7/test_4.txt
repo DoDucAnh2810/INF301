@@ -1,0 +1,4 @@
+map2.txt
+prog4.prg
+5
+O

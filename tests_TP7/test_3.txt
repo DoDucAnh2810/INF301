@@ -1,0 +1,6 @@
+map2.txt
+prog3.prg
+3
+N
+3 1
+N

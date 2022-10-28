@@ -1,0 +1,6 @@
+map2.txt
+prog2.prg
+4
+N
+3 0
+E
